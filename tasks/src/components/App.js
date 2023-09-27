@@ -37,6 +37,7 @@ function App() {
   async function handleClickDelete(task_id) {
     try {
         JsonServer.deleteRemoteTask(task_id);
+        setTasks(tasks => tasks.filter(task => task.id !== task_id));
     } catch (error) {
       setError("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
       console.error("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
