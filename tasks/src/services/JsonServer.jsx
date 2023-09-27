@@ -20,4 +20,17 @@ export default class JsonServer {
         })
         .then(function (res) {console.log(res);})
     }
+
+    static async addRemoteTask(task){
+        return fetch(`${JsonServer.url}`,{
+            headers:{
+                'Accept':"application/json",
+            'Content-Type': 'application/json'
+            },
+            method : "POST",
+
+            body: JSON.stringify(task)
+        })
+        .then(function (res) {console.log(res);})
+    }
 }
