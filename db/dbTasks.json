@@ -1,0 +1,6 @@
+{
+    "tasks": [
+        {"id":1, "title":"faire le ménage", "done":false},
+        {"id":2, "title":"faire les courses", "done":true}
+    ]
+}
