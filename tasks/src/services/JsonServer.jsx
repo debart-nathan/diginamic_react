@@ -9,4 +9,15 @@ export default class JsonServer {
         })
         .then(tasks => tasks)
     }
+
+    static async deleteRemoteTask(task_id){
+        return fetch(`${JsonServer.url}/${task_id}`,{
+            headers:{
+                'Accept':"application/json",
+            'Content-Type': 'application/json'
+            },
+            method : "DELETE"
+        })
+        .then(function (res) {console.log(res);})
+    }
 }

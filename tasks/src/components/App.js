@@ -14,8 +14,8 @@ function App() {
           const loaded_tasks = await JsonServer.loadTasks()
           setTasks(loaded_tasks)
         } catch (error) {
-          setError("Erreur attrapé dans loadCounters" + error)
-          console.error("Erreur attrapé dans loadCounters" + error)
+          setError("Erreur attrapé dans loadTasks" + error)
+          console.error("Erreur attrapé dans loadTasks" + error)
         }
 
       })();
@@ -34,6 +34,15 @@ function App() {
     setTasks(tasks => copy_tasks);
   }
 
+  async function handleClickDelete(task_id) {
+    try {
+        JsonServer.deleteRemoteTask(task_id);
+    } catch (error) {
+      setError("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
+      console.error("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
+    }
+  }
+
   return (
     <div className="App container">
       <h1>Gestion des tâches</h1>
@@ -43,6 +52,7 @@ function App() {
           key={task.id}
           task={task}
           onClickDone={handleClickDone}
+          onClickDelete={handleClickDelete}
         />
       })}
     </div>
