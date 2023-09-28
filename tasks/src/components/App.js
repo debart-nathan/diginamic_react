@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Task from "./Task";
 import JsonServer from '../services/JsonServer';
@@ -17,24 +16,43 @@ function App() {
 
   async function loadRemoteTasks() {
     try {
-      const loaded_tasks = await JsonServer.loadTasks()
+      let loaded_tasks = await JsonServer.loadTasks()
+
+      // Sort tasks so that tasks with done are put at the end
+      loaded_tasks = loaded_tasks.sort((a, b) => a.done - b.done);
+
       setTasks(loaded_tasks)
     } catch (error) {
       setError("Erreur attrapé dans loadTasks" + error)
-      console.error("Erreur attrapé dans loadTasks" + error)
     }
-
   }
 
-  function handleClickDone(task_id) {
-    console.log(`Dans handleClickDone`, task_id);
-    const copy_tasks = tasks.map(task => {
-      if (task.id === task_id) {
-        task.done = !task.done;
+  async function handleClickDone(task_id) {
+    const taskToMoveIndex = tasks.findIndex(task => task.id === task_id);
+    const taskToMove = { ...tasks[taskToMoveIndex], done: !tasks[taskToMoveIndex].done };
+
+    const copy_tasks = tasks.filter(task => task.id !== task_id);
+    if (taskToMove) {
+      // If taskToMove is done, push it to the end
+      if (taskToMove.done) {
+        copy_tasks.push(taskToMove);
+      } else {
+        // Find the index of the last task with done set to false
+        const insertIndex = copy_tasks.findIndex(task => task.done);
+
+        // Insert taskToMove after the last task with done set to false
+        copy_tasks.splice(insertIndex, 0, taskToMove);
       }
-      return task;
-    });
-    setTasks(tasks => copy_tasks);
+    }
+
+    setTasks(copy_tasks);
+
+    try {
+      JsonServer.patchRemoteTaskDone(task_id, taskToMove.done)
+    } catch (error) {
+      setError("Erreur validation de tache " + task_id + " " + error);
+      loadRemoteTasks();
+    }
   }
 
   function handleClickDelete(task_id) {
@@ -42,29 +60,29 @@ function App() {
 
     JsonServer.deleteRemoteTask(task_id).catch(error => {
       setError("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
-      console.error("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
       loadRemoteTasks();
     })
   }
 
   async function handleSubmitNewTask(formData) {
-    console.log(`in handleSubmitNewTask`);
-    let copy_tasks = [...tasks];
-    const newTask = { title: formData.get('new-task-title'), done: false };
-    copy_tasks.push({
-      id: Math.max(
-        copy_tasks.map(task => task.id)
-      )+1,
-      ...newTask
-    });
-    setTasks(tasks=>copy_tasks);
+    const copy_tasks = [...tasks];
+    const tempId = Math.max(...copy_tasks.map(task => task.id)) + 1;
+    const newTask = { id: tempId, title: formData.get('new-task-title'), done: false };
+
+    // Find the index of the last task with done set to false
+    const insertIndex = copy_tasks.findIndex(task => task.done);
+
+    // Insert newTask after the last task with done set to false
+    copy_tasks.splice(insertIndex, 0, newTask);
+
+    setTasks(copy_tasks);
 
     try {
-      await JsonServer.addRemoteTask(newTask);
+      const newRemoteTask = await JsonServer.addRemoteTask(newTask);
+      copy_tasks[insertIndex] = newRemoteTask;
+      setTasks([...copy_tasks]);
     } catch (error) {
       setError("Erreur insertion de nouvelle tache");
-      
-    } finally {
       loadRemoteTasks();
     }
   }

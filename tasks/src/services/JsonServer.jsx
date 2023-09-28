@@ -18,7 +18,7 @@ export default class JsonServer {
             },
             method : "DELETE"
         })
-        .then(function (res) {console.log(res);})
+        .then((res)=> {console.log(res);})
     }
 
     static async addRemoteTask(task){
@@ -31,6 +31,31 @@ export default class JsonServer {
 
             body: JSON.stringify(task)
         })
-        .then(function (res) {console.log(res);})
+        .then((res)=> {
+            console.log(res)
+            ;return res.json()
+        })
+        .then(res=>{
+            return res;
+        });
+    }
+
+    static async patchRemoteTaskDone(task_id,done){
+        return fetch(`${JsonServer.url}/${task_id}`,{
+            headers:{
+                'Accept':"application/json",
+            'Content-Type': 'application/json'
+            },
+            method : "PATCH",
+
+            body: `{"done" : ${done}}`
+        })
+        .then((res)=> {
+            console.log(res)
+            ;return res.json()
+        })
+        .then(res=>{
+            return res;
+        });
     }
 }
