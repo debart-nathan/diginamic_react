@@ -7,20 +7,13 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState("");
 
-  useEffect(
-    () => {
-      loadRemoteTasks();
-    },
-    []
-  );
+  useEffect(() => {
+    loadRemoteTasks();
+  }, []);
 
   async function loadRemoteTasks() {
     try {
-      let loaded_tasks = await JsonServer.loadTasks()
-
-      // Sort tasks so that tasks with done are put at the end
-      loaded_tasks = loaded_tasks.sort((a, b) => a.done - b.done);
-
+      const loaded_tasks = await JsonServer.loadTasks()
       setTasks(loaded_tasks)
     } catch (error) {
       setError("Erreur attrapé dans loadTasks" + error)
@@ -28,27 +21,20 @@ function App() {
   }
 
   async function handleClickDone(task_id) {
-    const taskToMoveIndex = tasks.findIndex(task => task.id === task_id);
-    const taskToMove = { ...tasks[taskToMoveIndex], done: !tasks[taskToMoveIndex].done };
+    let updatedDoneStatus;
 
-    const copy_tasks = tasks.filter(task => task.id !== task_id);
-    if (taskToMove) {
-      // If taskToMove is done, push it to the end
-      if (taskToMove.done) {
-        copy_tasks.push(taskToMove);
-      } else {
-        // Find the index of the last task with done set to false
-        const insertIndex = copy_tasks.findIndex(task => task.done);
-
-        // Insert taskToMove after the last task with done set to false
-        copy_tasks.splice(insertIndex, 0, taskToMove);
+    const updatedTasks = tasks.map(task => {
+      if (task.id === task_id) {
+        updatedDoneStatus = !task.done;
+        return { ...task, done: updatedDoneStatus };
       }
-    }
+      return task;
+    });
 
-    setTasks(copy_tasks);
+    setTasks(updatedTasks);
 
     try {
-      JsonServer.patchRemoteTaskDone(task_id, taskToMove.done)
+      await JsonServer.patchRemoteTaskDone(task_id, updatedDoneStatus)
     } catch (error) {
       setError("Erreur validation de tache " + task_id + " " + error);
       loadRemoteTasks();
@@ -56,34 +42,27 @@ function App() {
   }
 
   function handleClickDelete(task_id) {
-    setTasks(tasks => tasks.filter(task => task.id !== task_id));
+    const newTasks = tasks.filter(task => task.id !== task_id);
+    setTasks(newTasks);
 
     JsonServer.deleteRemoteTask(task_id).catch(error => {
-      setError("Erreur attrapé dans handleClickDelete " + task_id + " " + error)
+      setError("Erreur attrapé dans handleClickDelete " + task_id + " " + error);
       loadRemoteTasks();
     })
   }
 
   async function handleSubmitNewTask(formData) {
-    const copy_tasks = [...tasks];
-    const tempId = Math.max(...copy_tasks.map(task => task.id)) + 1;
+    const tempId = Math.max(...tasks.map(task => task.id)) + 1;
     const newTask = { id: tempId, title: formData.get('new-task-title'), done: false };
 
-    // Find the index of the last task with done set to false
-    const insertIndex = copy_tasks.findIndex(task => task.done);
-
-    // Insert newTask after the last task with done set to false
-    copy_tasks.splice(insertIndex, 0, newTask);
-
-    setTasks(copy_tasks);
+    setTasks(prevTasks => [...prevTasks, newTask]);
 
     try {
       const newRemoteTask = await JsonServer.addRemoteTask(newTask);
-      copy_tasks[insertIndex] = newRemoteTask;
-      setTasks([...copy_tasks]);
+      setTasks(prevTasks => prevTasks.map(task => task.id === tempId ? newRemoteTask : task));
     } catch (error) {
       setError("Erreur insertion de nouvelle tache");
-      loadRemoteTasks();
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== tempId));
     }
   }
 
@@ -95,14 +74,16 @@ function App() {
         key="create-task"
         onSubmit={handleSubmitNewTask}
       />
-      {tasks.map((task) => {
-        return <Task
-          key={task.id}
-          task={task}
-          onClickDone={handleClickDone}
-          onClickDelete={handleClickDelete}
-        />
-      })}
+      {[...tasks]
+        .sort((a, b) => a.done - b.done)
+        .map((task) => {
+          return <Task
+            key={task.id}
+            task={task}
+            onClickDone={handleClickDone}
+            onClickDelete={handleClickDelete}
+          />
+        })}
     </div>
   );
 }
