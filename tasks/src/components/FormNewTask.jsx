@@ -1,15 +1,25 @@
+import React, { useRef } from 'react';
 
+function sanitizeInput(input) {
+    return input.replace(/<[^>]*>?/gm, '');
+}
 
-function FormNewTask({ newTask, setNewTask, onSubmit }) {
-    // form state will go here
+function FormNewTask({ onSubmit }) {
+    const formRef = useRef();
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const formData = new FormData(formRef.current);
+        // Sanitize the input
+        const title = sanitizeInput(formData.get('new-task-title'));
+        formData.set('new-task-title', title);
+        onSubmit(formData);
+        // Reset the form
+        formRef.current.reset();
+    };
+
     return (
-        <form
-            className='form d-flex w-100 justify-content-around'
-            onSubmit={(event)=>{
-                event.preventDefault();
-                onSubmit();
-            }}
-        >
+        <form ref={formRef} onSubmit={handleSubmit} className='form d-flex justify-content-around'>
             <div className='form-group d-flex'>
                 <label className=' text-nowrap form-label p-3' htmlFor="new-task-title">
                     Nouvelle tache
@@ -19,14 +29,7 @@ function FormNewTask({ newTask, setNewTask, onSubmit }) {
                     name="new-task-title"
                     className="form-control"
                     type='text'
-                    value={newTask.title}
-                    onChange={event => setNewTask(
-                        (task) => {
-                            const copy_task = { ...task };
-                            copy_task.title = event.target.value;
-                            return copy_task;
-                        }
-                    )} />
+                />
             </div>
             <button
                 className='btn btn-secondary'
@@ -34,7 +37,7 @@ function FormNewTask({ newTask, setNewTask, onSubmit }) {
                 Ajouté
             </button>
         </form>
-    )
+    );
 }
 
 export default FormNewTask;

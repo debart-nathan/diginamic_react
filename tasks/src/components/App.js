@@ -6,7 +6,6 @@ import FormNewTask from "./FormNewTask";
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: "", done: false });
   const [error, setError] = useState("");
 
   useEffect(
@@ -48,24 +47,26 @@ function App() {
     })
   }
 
-  async function handleSubmitNewTask() {
+  async function handleSubmitNewTask(formData) {
     console.log(`in handleSubmitNewTask`);
-    let copy_tasks = tasks;
+    let copy_tasks = [...tasks];
+    const newTask = { title: formData.get('new-task-title'), done: false };
     copy_tasks.push({
       id: Math.max(
-        ...tasks.map(task => task.id)
+        copy_tasks.map(task => task.id)
       )+1,
       ...newTask
     });
     setTasks(tasks=>copy_tasks);
 
     try {
-      JsonServer.addRemoteTask(newTask);
+      await JsonServer.addRemoteTask(newTask);
     } catch (error) {
       setError("Erreur insertion de nouvelle tache");
+      
+    } finally {
       loadRemoteTasks();
     }
-    setNewTask({ title: "", done: false });
   }
 
   return (
@@ -74,8 +75,6 @@ function App() {
       {error && (<h2 className=" text-danger">{error}</h2>)}
       <FormNewTask
         key="create-task"
-        newTask={newTask}
-        setNewTask={setNewTask}
         onSubmit={handleSubmitNewTask}
       />
       {tasks.map((task) => {

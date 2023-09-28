@@ -1,5 +1,5 @@
 export default class JsonServer {
-    static url = "http://localhost:3004/tasks";
+    static url = "http://localhost:3001/tasks";
 
     static async loadTasks(){
         return fetch(JsonServer.url)
