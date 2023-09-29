@@ -1,5 +1,5 @@
 import React from "react";
-
+import {Outlet} from "react-router-dom"
 
 function App() {
     return (
@@ -7,6 +7,9 @@ function App() {
             <header>
                 <h1>Header commun</h1>
             </header>
+            <main>
+                <Outlet/>
+            </main>
         </div>
     );
 }
