@@ -7,7 +7,7 @@ function App() {
             <header>
                 <h1>Header commun</h1>
             </header>
-            <main>
+            <main className="container">
                 <Outlet/>
             </main>
         </div>
