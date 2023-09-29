@@ -1,10 +1,34 @@
 import TaskInterface from "../interfaces/TaskInterface";
 
 export default class JsonServer {
-    static url = "http://localhost:3001/tasks";
+    private static instance: JsonServer;
+    private static isSingleton:boolean=false;
+    private url :string;
 
-    static async loadTasks(): Promise<TaskInterface[]> {
-        return fetch(JsonServer.url)
+    private constructor(url:string){
+        this.url= url;
+    }
+
+    public static getInstance(url:string=""):JsonServer{
+        if(JsonServer.isSingleton ){
+            if( url !== ""){
+                throw new Error("InvalidArgumentException");
+            }
+            JsonServer.instance = new JsonServer(url); 
+            JsonServer.isSingleton = true;
+        }
+        if(url !== ""){
+            JsonServer.instance.setUrl(url);
+        }
+        return JsonServer.instance;
+    }
+
+    public setUrl(url:string):void{
+        this.url= url;
+    }
+
+    public async loadTasks(): Promise<TaskInterface[]> {
+        return fetch(this.url)
             .then((response) => {
                 console.log("statut de la réponse :", response.status);
                 return response.json();
@@ -12,8 +36,8 @@ export default class JsonServer {
             .then((tasks) => tasks);
     }
 
-    static async deleteRemoteTask(task_id: number): Promise<void> {
-        return fetch(`${JsonServer.url}/${task_id}`, {
+    public async deleteRemoteTask(task_id: number): Promise<void> {
+        return fetch(`${this.url}/${task_id}`, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
@@ -24,10 +48,10 @@ export default class JsonServer {
         });
     }
 
-    static async addRemoteTask(
+    public async addRemoteTask(
         task: Omit<TaskInterface, "id">
     ): Promise<TaskInterface> {
-        return fetch(`${JsonServer.url}`, {
+        return fetch(`${this.url}`, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
@@ -45,11 +69,11 @@ export default class JsonServer {
             });
     }
 
-    static async patchRemoteTaskDone(
+    public async patchRemoteTaskDone(
         task_id: number,
         done: boolean
     ): Promise<TaskInterface> {
-        return fetch(`${JsonServer.url}/${task_id}`, {
+        return fetch(`${this.url}/${task_id}`, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",

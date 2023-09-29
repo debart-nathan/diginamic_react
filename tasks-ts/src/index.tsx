@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client';
 import App from './components/App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
+import JsonServer from './services/JsonServer';
+
+
+const jsonServer = JsonServer.getInstance("http://localhost:3001/tasks");
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

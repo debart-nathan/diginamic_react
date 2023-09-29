@@ -7,6 +7,7 @@ import TaskInterface from "../interfaces/TaskInterface";
 function App(): React.JSX.Element {
     const [tasks, setTasks] = useState<TaskInterface[]>([]);
     const [error, setError] = useState<string>("");
+    const jsonServer : JsonServer = JsonServer.getInstance("")
 
     useEffect(() => {
         loadRemoteTasks();
@@ -14,7 +15,7 @@ function App(): React.JSX.Element {
 
     async function loadRemoteTasks(): Promise<void> {
         try {
-            const loaded_tasks: TaskInterface[] = await JsonServer.loadTasks();
+            const loaded_tasks: TaskInterface[] = await jsonServer.loadTasks();
             setTasks(loaded_tasks);
         } catch (er) {
             setError("Erreur attrapé dans loadTasks" + er);
@@ -35,7 +36,7 @@ function App(): React.JSX.Element {
         setTasks(updatedTasks);
 
         try {
-            await JsonServer.patchRemoteTaskDone(task_id, updatedDoneStatus);
+            await jsonServer.patchRemoteTaskDone(task_id, updatedDoneStatus);
         } catch (error) {
             setError("Erreur validation de tache " + task_id + " " + error);
             loadRemoteTasks();
@@ -48,7 +49,7 @@ function App(): React.JSX.Element {
         );
         setTasks(newTasks);
 
-        JsonServer.deleteRemoteTask(task_id).catch((error) => {
+        jsonServer.deleteRemoteTask(task_id).catch((error) => {
             setError(
                 "Erreur attrapé dans handleClickDelete " + task_id + " " + error
             );
@@ -67,7 +68,7 @@ function App(): React.JSX.Element {
         setTasks((prevTasks): TaskInterface[] => [...prevTasks, newTask]);
 
         try {
-            const newRemoteTask: TaskInterface = await JsonServer.addRemoteTask(
+            const newRemoteTask: TaskInterface = await jsonServer.addRemoteTask(
                 newTask
             );
             setTasks((prevTasks) =>
