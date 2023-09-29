@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './components/App';
+import Home from './components/Home';
 import Articles from './components/Articles';
 import reportWebVitals from './reportWebVitals';
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
@@ -11,6 +12,7 @@ const root = ReactDOM.createRoot(
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
+      <Route path="" element={<Home />}/>
       <Route path="articles" element={<Articles />}/>
     </Route>
   )
