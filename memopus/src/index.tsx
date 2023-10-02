@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './components/App';
 import "./styles/scss/main.scss";
+import '@popperjs/core';
+import 'bootstrap/dist/js/bootstrap.min.js';
 import reportWebVitals from './reportWebVitals';
 import JsonServer from './services/JsonServer';
 

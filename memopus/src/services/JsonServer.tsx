@@ -29,4 +29,10 @@ export default class JsonServer {
         const users = await response.json();
         return users.length > 0;
     }
+
+    public async getData(endpoint: string): Promise<any> {
+        const response = await fetch(`${this.url}/${endpoint}`);
+        const data = await response.json();
+        return data;
+    }
 }
