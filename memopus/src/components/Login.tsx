@@ -6,14 +6,14 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-    const [username, setUsername] = React.useState("");
-    const [password, setPassword] = React.useState("");
-
-    const handleSubmit = async (event: React.FormEvent): Promise<void> => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
-        const jsonServer = JsonServer.getInstance();
+        const formData = new FormData(event.currentTarget);
+        const username = formData.get('username');
+        const password = formData.get('password');
 
-        const isValid = await jsonServer.checkCredentials(username, password);
+        const jsonServer = JsonServer.getInstance();
+        const isValid = await jsonServer.checkCredentials(username as string, password as string);
 
         if (isValid) {
             onLogin();
@@ -27,9 +27,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <label htmlFor="login-username">login :</label>
                     <input
                         id="login-username"
+                        name="username"
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
                         required
                     />
                 </div>
@@ -37,8 +36,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <label htmlFor="login-password">mot de passe :</label>
                     <input
                         id="login-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        name="password"
+                        type="password"
                         required
                     />
                 </div>
