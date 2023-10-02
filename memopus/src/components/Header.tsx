@@ -1,10 +1,15 @@
-// Header.tsx
 import React from 'react';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    onLogout: () => void;
+    isConnected: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ onLogout, isConnected }) => {
     return (
-        <header>
-            {/* Header content goes here */}
+        <header className='bg-dark'>
+            <h1>memopus</h1>
+            {isConnected && <button onClick={onLogout}>Log out</button>}
         </header>
     );
 }
