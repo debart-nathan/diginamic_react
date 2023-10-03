@@ -28,6 +28,13 @@ const Main = () => {
             }
             return prevCards;
         });
+    
+        // Call the patchData method after setCards
+        const updatedCard = cards.find(card => card.id === cardId);
+        if (updatedCard) {
+            const jsonServer= JsonServer.getInstance();
+            jsonServer.patchData('cards', cardId, updatedCard);
+        }
     };
 
     const addCard = (question: string, answer: string,columnId:number, categoryId: number) => {
