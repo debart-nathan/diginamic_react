@@ -30,15 +30,33 @@ const Main = () => {
         });
     };
 
+    const addCard = (question: string, answer: string,columnId:number, categoryId: number) => {
+        const maxId = Math.max(...cards.map(card => card.id), 0);
+    
+
+        const newCard: CardInterface = {
+            id: maxId + 1,
+            question,
+            answer,
+            column: columnId,
+            selected: false,
+            tid: categoryId
+        };
+    
+        // Add the new card to the state
+        setCards(prevCards => [...prevCards, newCard]);
+    };
+
     return (
         <main className="px-5">
             <CategoryNav setCategory={setCategory} category={category} />
             {category && (
                 <CategoryContainer
-                    category={category}
-                    cards={cards.filter((card) => card.tid === category.id)}
-                    updateCardColumn={updateCardColumn}
-                />
+                category={category}
+                cards={cards.filter((card) => card.tid === category.id)}
+                addCard={addCard}
+                updateCardColumn={updateCardColumn}
+            />
             )}
         </main>
     );
