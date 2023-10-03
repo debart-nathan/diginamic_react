@@ -51,5 +51,21 @@ export default class JsonServer {
         return updatedData;
     }
 
+    public async postData(endpoint: string, data: any): Promise<any> {
+        await fetch(`${this.url}/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
     
+        // After the POST request, make a GET request to retrieve the list of all resources
+        const allData = await this.getData(endpoint);
+    
+        // Find the resource with the highest ID
+        const createdData = allData.reduce((prev:any, curr:any) => (prev.id > curr.id ? prev : curr));
+    
+        return createdData;
+    }
 }

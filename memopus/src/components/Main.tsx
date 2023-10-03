@@ -37,11 +37,10 @@ const Main = () => {
         }
     };
 
-    const addCard = (question: string, answer: string,columnId:number, categoryId: number) => {
+    const addCard = async (question: string, answer: string,columnId:number, categoryId: number) => {
         const maxId = Math.max(...cards.map(card => card.id), 0);
     
-
-        const newCard: CardInterface = {
+        const tempCard: CardInterface = {
             id: maxId + 1,
             question,
             answer,
@@ -50,8 +49,15 @@ const Main = () => {
             tid: categoryId
         };
     
-        // Add the new card to the state
-        setCards(prevCards => [...prevCards, newCard]);
+        // Add the temporary card to the state
+        setCards(prevCards => [...prevCards, tempCard]);
+    
+        const jsonServer = JsonServer.getInstance();
+        const cardData: Omit<CardInterface, 'id'> = { ...tempCard };
+        const createdCard = await jsonServer.postData('cards', cardData);
+    
+        // Update the id of the temporary card in the state
+        setCards(prevCards => prevCards.map(card => card.id === tempCard.id ? {...card, id: createdCard.id} : card));
     };
 
     return (
