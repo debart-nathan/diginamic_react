@@ -5,9 +5,16 @@ import Card from "./column-sub/Card";
 interface ColumnProps {
     column: ColumnInterface;
     cards: CardInterface[];
+    moveCardToNextColumn: (cardId: number) => void;
+    moveCardToPrevColumn: (cardId: number) => void;
 }
 
-const Column: React.FC<ColumnProps> = ({ column, cards }) => {
+const Column: React.FC<ColumnProps> = ({
+    column,
+    cards,
+    moveCardToNextColumn,
+    moveCardToPrevColumn,
+}) => {
     return (
         <section>
             <div className="d-flex flex-columns gap-4">
@@ -20,7 +27,11 @@ const Column: React.FC<ColumnProps> = ({ column, cards }) => {
 
             <section>
                 {cards.map((card) => (
-                    <Card card={card} />
+                    <Card
+                        card={card}
+                        moveCardToNextColumn={moveCardToNextColumn}
+                        moveCardToPrevColumn={moveCardToPrevColumn}
+                    />
                 ))}
             </section>
         </section>

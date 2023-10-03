@@ -18,10 +18,28 @@ const Main = () => {
         fetchCards();
     }, []);
 
+    const updateCardColumn = (cardId: number, newColumn: number) => {
+        setCards((prevCards) => {
+            const cardIndex = prevCards.findIndex((card) => card.id === cardId);
+            if (cardIndex !== -1) {
+                const card = prevCards[cardIndex];
+                card.column = newColumn;
+                return [...prevCards];
+            }
+            return prevCards;
+        });
+    };
+
     return (
         <main className="px-5">
             <CategoryNav setCategory={setCategory} category={category} />
-            {category && <CategoryContainer category={category} cards={cards.filter(card => card.tid === category.id)} />}
+            {category && (
+                <CategoryContainer
+                    category={category}
+                    cards={cards.filter((card) => card.tid === category.id)}
+                    updateCardColumn={updateCardColumn}
+                />
+            )}
         </main>
     );
 };

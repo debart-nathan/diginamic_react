@@ -7,10 +7,15 @@ import { CardInterface } from "../../Interface/CardInterface";
 
 interface CategoryContainerProps {
     category: CategoryInterface;
-    cards : CardInterface[];
+    cards: CardInterface[];
+    updateCardColumn: (cardId: number, newColumn: number) => void;
 }
 
-const CategoryContainer: React.FC<CategoryContainerProps> = ({ category, cards }) => {
+const CategoryContainer: React.FC<CategoryContainerProps> = ({
+    category,
+    cards,
+    updateCardColumn,
+}) => {
     const jsonServer = JsonServer.getInstance();
     const [columns, setColumns] = useState<ColumnInterface[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,8 +35,34 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({ category, cards }
     }
 
     const getCardsForColumn = (columnId: number) => {
-        return cards.filter(card => card.column === columnId);
-    }
+        return cards.filter((card) => card.column === columnId);
+    };
+
+    const moveCardToNextColumn = (cardId: number) => {
+        const card = cards.find((card) => card.id === cardId);
+        if (card) {
+            const columnIndex = columns.findIndex(
+                (column) => column.id === card.column
+            );
+            if (columnIndex !== -1 && columnIndex < columns.length - 1) {
+                const nextColumn = columns[columnIndex + 1];
+                updateCardColumn(cardId, nextColumn.id);
+            }
+        }
+    };
+
+    const moveCardToPrevColumn = (cardId: number) => {
+        const card = cards.find((card) => card.id === cardId);
+        if (card) {
+            const columnIndex = columns.findIndex(
+                (column) => column.id === card.column
+            );
+            if (columnIndex > 0) {
+                const prevColumn = columns[columnIndex - 1];
+                updateCardColumn(cardId, prevColumn.id);
+            }
+        }
+    };
 
     return (
         <div>
@@ -41,7 +72,12 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({ category, cards }
                     const columnCards = getCardsForColumn(column.id);
                     return (
                         <div className="col-3">
-                            <Column column={column} cards={columnCards} />
+                            <Column
+                                column={column}
+                                cards={columnCards}
+                                moveCardToNextColumn={moveCardToNextColumn}
+                                moveCardToPrevColumn={moveCardToPrevColumn}
+                            />
                         </div>
                     );
                 })}
