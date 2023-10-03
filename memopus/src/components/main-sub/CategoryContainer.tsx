@@ -10,13 +10,17 @@ interface CategoryContainerProps {
     cards: CardInterface[];
     addCard: (question: string, answer: string, ColumnId:number , categoryId: number) => void;
     updateCardColumn: (cardId: number, newColumn: number) => void;
+    deleteCard:(id:number)=>void;
+    cardEdit: (cardId:number,question:string,answer:string)=>void;
 }
 
 const CategoryContainer: React.FC<CategoryContainerProps> = ({
     category,
     cards,
     updateCardColumn,
-    addCard
+    addCard,
+    deleteCard,
+    cardEdit
 }) => {
     const jsonServer = JsonServer.getInstance();
     const [columns, setColumns] = useState<ColumnInterface[]>([]);
@@ -84,6 +88,8 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
                                 addCard={addCardToCurrentCategory}
                                 moveCardToNextColumn={moveCardToNextColumn}
                                 moveCardToPrevColumn={moveCardToPrevColumn}
+                                deleteCard={deleteCard}
+                                cardEdit={cardEdit}
                             />
                         </div>
                     );

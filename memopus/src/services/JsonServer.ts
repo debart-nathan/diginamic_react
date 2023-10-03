@@ -68,4 +68,12 @@ export default class JsonServer {
     
         return createdData;
     }
+
+    public async deleteData(endpoint: string, id: number): Promise<void> {
+        return fetch(`${this.url}/${endpoint}/${id}`, {
+            method: "DELETE",
+        }).then((res) => {
+            console.log(res);
+        });
+    }
 }
