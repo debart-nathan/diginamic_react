@@ -1,28 +1,38 @@
 import React, { FormEvent, FC } from "react";
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form } from "react-bootstrap";
 
 interface NewCategoryFormProps {
     isOpen: boolean;
     onClose: () => void;
+    newCategory: (name: string) => void;
 }
 
-const NewCategoryForm: FC<NewCategoryFormProps> = ({ isOpen, onClose }) => {
+const NewCategoryForm: FC<NewCategoryFormProps> = ({
+    isOpen,
+    onClose,
+    newCategory,
+}) => {
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const categoryName = formData.get("categoryName");
-        // Here you can handle the new category
-        console.log(categoryName);
+        const categoryName = formData.get("categoryName") as string;
+
+        newCategory(categoryName);
         onClose();
     };
 
     return (
-        <Modal className="d-flex flex-column justify-content-center" show={isOpen} onHide={onClose}>
+        <Modal
+            className="d-flex flex-column justify-content-center"
+            show={isOpen}
+            onHide={onClose}>
             <Modal.Header closeButton>
                 <Modal.Title>New Category</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form className="d-flex flex-column justify-content-center" onSubmit={handleSubmit}>
+                <Form
+                    className="d-flex flex-column justify-content-center"
+                    onSubmit={handleSubmit}>
                     <Form.Group>
                         <Form.Label>Category Name:</Form.Label>
                         <Form.Control type="text" name="categoryName" />

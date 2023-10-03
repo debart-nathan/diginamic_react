@@ -22,13 +22,31 @@ const CategoryNav: React.FC<CategoryNavProps> = ({ setCategory, category }) => {
         fetchTerms();
     }, []);
 
-    const handleOpenModal = () => {
+    function handleOpenModal():void {
         setIsNewCategoryModalOpen(true);
     };
 
-    const handleCloseModal = () => {
+    function handleCloseModal():void {
         setIsNewCategoryModalOpen(false);
     };
+
+    function newCategory(name: string): void {
+        const tempCategory: CategoryInterface = {
+            id: terms.length + 1, // temporary id
+            name: name,
+            selected : false
+        };
+    
+        // Add the temporary category to the state
+        setTerms(prevTerms => [...prevTerms, tempCategory]);
+    
+        const jsonServer = JsonServer.getInstance();
+        const categoryData: Omit<CategoryInterface, 'id'> = { ...tempCategory };
+        jsonServer.postData('terms', categoryData).then(createdCategory => {
+            // Update the id of the temporary category in the state
+            setTerms(prevTerms => prevTerms.map(term => term.id === tempCategory.id ? {...term, id: createdCategory.id} : term));
+        });
+    }
 
     return (
         <div className="d-flex justify-content-center m-4 p-1 gap-4">
@@ -37,6 +55,7 @@ const CategoryNav: React.FC<CategoryNavProps> = ({ setCategory, category }) => {
                 <NewCategoryForm
                     isOpen={isNewCategoryModalOpen}
                     onClose={handleCloseModal}
+                    newCategory={newCategory}
                 />
             </div>
             {terms.map((term) => (
