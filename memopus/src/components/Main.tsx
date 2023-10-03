@@ -7,6 +7,7 @@ import JsonServer from "../services/JsonServer";
 import ErrorService from "../services/ErrorService";
 
 const Main = () => {
+    const [categories, setCategories] = useState<CategoryInterface[]>([]);
     const [category, setCategory] = useState<CategoryInterface | null>(null);
     const [cards, setCards] = useState<CardInterface[]>([]);
     useEffect(() => {
@@ -17,6 +18,15 @@ const Main = () => {
         };
 
         fetchCards();
+    }, []);
+    useEffect(() => {
+        const fetchTerms = async () => {
+            const jsonServer = JsonServer.getInstance();
+            const terms = await jsonServer.getData("terms");
+            setCategories(terms);
+        };
+    
+        fetchTerms();
     }, []);
 
     const updateCardColumn = async (cardId: number, newColumn: number) => {
@@ -174,9 +184,88 @@ const Main = () => {
         }
     };
 
+    const deleteCategory = async ( confirmDelete: boolean = false) => {
+        if(!category){
+            return;
+        }
+        // Find all cards in the category
+        const categoryCards = cards.filter((card) => card.tid === category.id);
+    
+        // Ask for confirmation, indicating the number of cards in the category
+        if (!confirmDelete)
+            confirmDelete = window.confirm(
+                `Are you sure you want to delete this category? It contains ${categoryCards.length} cards.`
+            );
+        if (!confirmDelete) {
+            return;
+        }
+    
+        // Delete all cards in the category
+        for (const card of categoryCards) {
+            await deleteCard(card.id, true);
+        }
+    
+        // Delete the category from the server
+        try {
+            const jsonServer = JsonServer.getInstance();
+            await jsonServer.deleteData("terms", category.id);
+        } catch (error) {
+            // If the server deletion fails, show an error message
+            ErrorService.setErrorMessage(
+                "ERROR: Delete: could not delete the category from the Database"
+            );
+        }
+    };
+
+    const editCategory = async ( newTitle: string) => {
+        if(!category){
+            return;
+        }
+        // Find the old category
+        const oldCategory = categories.find((categoryE) => categoryE.id === category.id);
+        if (!oldCategory) {
+            ErrorService.setErrorMessage(
+                "ERROR: Edit: Could not find the category in the Display, please actualise the page"
+            );
+            return;
+        }
+    
+        // Update the category in the state
+        setCategories((prevCategories:CategoryInterface[]) => {
+            const categoryIndex = prevCategories.findIndex((categoryE) => categoryE.id === category.id);
+            if (categoryIndex !== -1) {
+                const category = prevCategories[categoryIndex];
+                category.name = newTitle;
+                return [...prevCategories];
+            }
+            return prevCategories;
+        });
+    
+        try {
+            // Try to update the category on the server
+            const jsonServer = JsonServer.getInstance();
+            await jsonServer.patchData("terms", category.id, oldCategory);
+        } catch (error) {
+            // If the server update fails, revert the changes in the state
+            ErrorService.setErrorMessage(
+                "ERROR: Edit: could not update the category in the Database"
+            );
+            setCategories((prevCategories:CategoryInterface[]) =>
+                prevCategories.map((category:CategoryInterface) =>
+                    category.id === oldCategory.id
+                        ? {
+                              ...category,
+                              name: oldCategory.name,
+                          }
+                        : category
+                )
+            );
+        }
+    };
+
     return (
         <main className="px-5">
-            <CategoryNav setCategory={setCategory} category={category} />
+            <CategoryNav setCategory={setCategory} category={category} terms={categories} setTerms={setCategories} />
             {category && (
                 <CategoryContainer
                     category={category}
@@ -184,7 +273,9 @@ const Main = () => {
                     addCard={addCard}
                     updateCardColumn={updateCardColumn}
                     deleteCard={deleteCard}
-                    cardEdit={editCard}
+                    editCard={editCard}
+                    deleteCategory={deleteCategory}
+                    editCategory={editCategory}
                 />
             )}
         </main>

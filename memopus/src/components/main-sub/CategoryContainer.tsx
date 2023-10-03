@@ -4,6 +4,7 @@ import { ColumnInterface } from "../../Interface/ColumnInterface";
 import JsonServer from "../../services/JsonServer";
 import Column from "./category-container-sub/Column";
 import { CardInterface } from "../../Interface/CardInterface";
+import CategoryForm from "./category-nav-sub/CategoryForm";
 
 interface CategoryContainerProps {
     category: CategoryInterface;
@@ -11,7 +12,9 @@ interface CategoryContainerProps {
     addCard: (question: string, answer: string, ColumnId:number , categoryId: number) => void;
     updateCardColumn: (cardId: number, newColumn: number) => void;
     deleteCard:(id:number)=>void;
-    cardEdit: (cardId:number,question:string,answer:string)=>void;
+    editCard: (cardId:number,question:string,answer:string)=>void;
+    deleteCategory: ()=>void;
+    editCategory: (title:string)=>void;
 }
 
 const CategoryContainer: React.FC<CategoryContainerProps> = ({
@@ -20,7 +23,9 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
     updateCardColumn,
     addCard,
     deleteCard,
-    cardEdit
+    editCard,
+    deleteCategory,
+    editCategory
 }) => {
     const jsonServer = JsonServer.getInstance();
     const [columns, setColumns] = useState<ColumnInterface[]>([]);
@@ -77,6 +82,8 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
     return (
         <div>
             <h2 className="mb-4">{category.name}</h2>
+            <button className="btn btn-danger" onClick={deleteCategory}>Delete</button>
+            <CategoryForm addCategory={editCategory} name={category.name}  formTitle="Modifier une Category" buttonText="edit" buttonVariant="warning"/>
             <section className="row g-4 p-2">
                 {columns.map((column) => {
                     const columnCards = getCardsForColumn(column.id);
@@ -89,7 +96,7 @@ const CategoryContainer: React.FC<CategoryContainerProps> = ({
                                 moveCardToNextColumn={moveCardToNextColumn}
                                 moveCardToPrevColumn={moveCardToPrevColumn}
                                 deleteCard={deleteCard}
-                                cardEdit={cardEdit}
+                                cardEdit={editCard}
                             />
                         </div>
                     );

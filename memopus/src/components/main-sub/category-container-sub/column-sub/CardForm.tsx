@@ -40,17 +40,17 @@ const CardForm: FC<CardFormProps> = ({
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>{}</Modal.Title>
+                    <Modal.Title>{formTitle}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label>Question:</Form.Label>
-                            <Form.Control type="text" name="question" value={formQuestion} onChange={e => setFormQuestion(e.target.value)} />
+                            <Form.Control type="text" name="question" value={formQuestion} onChange={e => setFormQuestion(e.target.value)} required />
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>Answer:</Form.Label>
-                            <Form.Control type="text" name="answer" value={formAnswer} onChange={e => setFormAnswer(e.target.value)} />
+                            <Form.Control type="text" name="answer" value={formAnswer} onChange={e => setFormAnswer(e.target.value)} required />
                         </Form.Group>
                         <Button variant="primary" type="submit">
                             Submit
