@@ -24,7 +24,7 @@ export default class JsonServer {
         password: string
     ): Promise<boolean> {
         const response = await fetch(
-            `${this.url}/users?username=${username}&password=${password}`
+            `${this.url}/users?username=${username}&pwd=${password}`
         );
         const users = await response.json();
         return users.length > 0;

@@ -31,7 +31,7 @@ const App: React.FC = () => {
     return (
         <Router>
             <Header onLogout={handleLogout} isConnected={connected} />
-            {errorMessage && <div>{errorMessage}</div>}
+            {errorMessage && <div className="alert alert-warning">{errorMessage}</div>}
             <Routes>
                 {connected ? (
                     <Route path="/" element={<Main />}></Route>
